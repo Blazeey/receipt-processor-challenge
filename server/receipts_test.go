@@ -3,11 +3,13 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"receipt-processor-challenge/models"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,6 +47,55 @@ func TestPostReceiptsProcessInvalid(t *testing.T) {
 	invalidShortDescReceipt := getTargetReceipt()
 	invalidShortDescReceipt.Items[0].ShortDescription = "asdasdasd&"
 	testInvalidReceipt(t, invalidShortDescReceipt)
+}
+
+func TestGetReceiptsIdPoints(t *testing.T) {
+	s := NewServer("localhost", 9090)
+	requestBody, _ := json.Marshal(getTargetReceipt())
+	request, _ := http.NewRequest(http.MethodPost, "/receipts/process", bytes.NewBuffer(requestBody))
+	response := httptest.NewRecorder()
+	s.router.ServeHTTP(response, request)
+	assert.Equal(t, http.StatusOK, response.Code, "Expected HTTP 200 OK, got: %v", response.Code)
+	var responseBody models.ReceiptCreationResponse
+	defer response.Result().Body.Close()
+	decorder := json.NewDecoder(response.Body)
+	err := decorder.Decode(&responseBody)
+	assert.Nil(t, err)
+
+	pointsRequest, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/receipts/%s/points", responseBody.Id), &bytes.Buffer{})
+	pointsResponse := httptest.NewRecorder()
+	s.router.ServeHTTP(pointsResponse, pointsRequest)
+	assert.Equal(t, http.StatusOK, response.Code)
+	var pointsResponseBody models.GetPointsResponse
+	defer pointsResponse.Result().Body.Close()
+	pointsDecoder := json.NewDecoder(pointsResponse.Body)
+	err = pointsDecoder.Decode(&pointsResponseBody)
+	assert.Nil(t, err)
+	assert.Equal(t, int64(2), pointsResponseBody.Points)
+}
+
+func TestReceiptNotFoundForPoints(t *testing.T) {
+	s := NewServer("localhost", 9090)
+	requestBody, _ := json.Marshal(getTargetReceipt())
+	request, _ := http.NewRequest(http.MethodPost, "/receipts/process", bytes.NewBuffer(requestBody))
+	response := httptest.NewRecorder()
+	s.router.ServeHTTP(response, request)
+	assert.Equal(t, http.StatusOK, response.Code, "Expected HTTP 200 OK, got: %v", response.Code)
+	var responseBody models.ReceiptCreationResponse
+	defer response.Result().Body.Close()
+	decorder := json.NewDecoder(response.Body)
+	err := decorder.Decode(&responseBody)
+	assert.Nil(t, err)
+
+	pointsRequest, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/receipts/%s/points", uuid.New()), &bytes.Buffer{})
+	pointsResponse := httptest.NewRecorder()
+	s.router.ServeHTTP(pointsResponse, pointsRequest)
+	assert.Equal(t, http.StatusNotFound, pointsResponse.Code)
+	var pointsResponseBody models.GetPointsResponse
+	defer pointsResponse.Result().Body.Close()
+	pointsDecoder := json.NewDecoder(pointsResponse.Body)
+	err = pointsDecoder.Decode(&pointsResponseBody)
+	assert.Nil(t, err)
 }
 
 func testInvalidReceipt(t *testing.T, receipt models.Receipt) {
