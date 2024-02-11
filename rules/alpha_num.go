@@ -11,7 +11,7 @@ type AlphaNumRule struct{}
 func (r *AlphaNumRule) GetPoints(receipt *models.Receipt) (int64, error) {
 	count := 0
 	for _, c := range receipt.Retailer {
-		if unicode.IsLetter(c) || unicode.IsDigit(c) {
+		if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || unicode.IsDigit(c) {
 			count++
 		}
 	}

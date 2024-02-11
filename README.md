@@ -22,6 +22,8 @@ cd receipt-processor-challenge
 go build && ./receipt-processor-challenge
 ```
 
+The server runs on localhost with port 8080.
+
 ## Testing
 To run unit tests
 

@@ -27,7 +27,7 @@ func NewServer(host string, port uint) *Server {
 
 // Starts the server
 func (s *Server) Start() {
-	fmt.Println("Initializing server complete...")
+	fmt.Printf("Initializing server on port %d complete...\n", s.port)
 	s.router.Run(fmt.Sprintf("%s:%d", s.host, s.port))
 }
 
