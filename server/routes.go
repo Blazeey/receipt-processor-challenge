@@ -11,11 +11,12 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// Creating the gin router and initializing routes
 func InitializeHttpRoutes() *gin.Engine {
 	router := gin.New()
 	gin.SetMode(gin.ReleaseMode)
-	router.Use(gin.CustomRecovery(recoveryHandler()))
 	router.Use(gin.Logger())
+	router.Use(gin.CustomRecovery(recoveryHandler()))
 
 	// Register custom validation rule
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Initializes heartbeat route
 func InitializeHeartbeatRoute(router *gin.RouterGroup) {
 	router.GET("/heartbeat", heartbeat)
 }

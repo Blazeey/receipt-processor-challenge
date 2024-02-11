@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Initializes receipt routes
 func InitializeReceiptRoutes(router *gin.RouterGroup) {
 	receiptsHandler := handler.GetCachedReceiptHandler()
 	receiptsRouter := router.Group("/receipts")

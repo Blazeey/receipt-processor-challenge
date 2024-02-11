@@ -7,6 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
+/*
+CacheAccess is used to cache the calculated points. This caching would be essential if the number of point allocation rules
+keeps increasing. To avoid this redundant point calculation, we can cache it. This requires an underlying storage db (DataAccess)
+field to compute the uncached data.
+*/
 type CachedAccess struct {
 	db   DataAccess
 	data sync.Map
@@ -30,7 +35,7 @@ func (s *CachedAccess) GetPoints(receiptId uuid.UUID) (int64, error) {
 }
 
 func GetCachedAccess(da DataAccess) DataAccess {
-	return &CachedAccess{
-		db: da,
-	}
+	access := new(CachedAccess)
+	access.db = da
+	return access
 }

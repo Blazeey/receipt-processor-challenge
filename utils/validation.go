@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// Validations required for struct tag validation
 func ValidateRegex(fl validator.FieldLevel) bool {
 	value := fl.Field().String()
 	pattern := fl.Param()
